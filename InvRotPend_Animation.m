@@ -45,18 +45,43 @@ for i = 1:max(size(w))
    xP = xA + (l/2)*sin(w(i,1))*sin(w(i,2));
    yP = yA - (l/2)*sin(w(i,2))*cos(w(i,1));
    zP = zA + (l/2)*cos(w(i,2));
-   
+    
    % 3D coordinates
-   X = [x0,xA,xP];
-   Y = [y0,yA,yP];
-   Z = [z0,zA,zP];
+%    X = [x0,xA,xP];
+%    Y = [y0,yA,yP];
+%    Z = [z0,zA,zP];
+    
    
-   h1 = plot3(X,Y,Z,x0,y0,z0,'o',xA,yA,zA,'o');
+   subplot(2,2,3)
+   h1 = plot3([x0,xA],[y0,yA],[z0,zA],[xA,xP],[yA,yP],[zA,zP],x0,y0,z0,'o',xA,yA,zA,'o','MarkerFace','r','MarkerFace','b','linewidth',2);
    grid on
    title('Rotary Pendulum System')
-   axis([-0.1,0.3,-0.3,0.3,-0.2,0.2])
+   axis([-0.1,0.3,-0.15,0.15,-0.1,0.1])
+   
+   subplot(2,2,4)
+   h2 = plot([x0,xA],[y0,yA],[xA,xP],[yA,yP],x0,y0,'o',xA,yA,'o','MarkerFace','r','MarkerFace','k','Linewidth',2);
+   grid on
+   title('Rotary Pendulum (XY Plane/Top View)')
+   axis([-0.1,0.3,-0.15,0.15])
+   
+   subplot(2,2,1)
+   h3 = plot([x0,xA],[z0,zA],[xA,xP],[zA,zP],x0,z0,'o',xA,zA,'o','MarkerFace','r','MarkerFace','k','Linewidth',2);
+   grid on
+   title('Rotary Pendulum (ZX Plane/Side View)')
+   axis([-0.1,0.3,-0.1,0.1])
+   
+   subplot(2,2,2)
+   h4 = plot([y0,yA],[z0,zA],[yA,yP],[zA,zP],y0,z0,'o',yA,zA,'o','MarkerFace','r','MarkerFace','k','Linewidth',2);
+   grid on
+   title('Rotary Pendulum (YZ Plane/Front View)')
+   axis([-0.15,0.15,-0.1,0.1])
+     
+   
    pause(0.1)
    delete(h1)  
+   delete(h2)
+   delete(h3)
+   delete(h4)
 end
 
 

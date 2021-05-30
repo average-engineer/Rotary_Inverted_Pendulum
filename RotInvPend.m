@@ -15,7 +15,8 @@ l = 0.129;
 g = 9.81;
 
 %% Simulation time vector
-t_span = [0:0.01:5];
+dt = 0.01; % Time Step Size
+t_span = [0:dt:5];
 
 %% Degrees of Freedom of the System
 dof = 2;
@@ -23,7 +24,7 @@ dof = 2;
 %% State Vector of the system
 % [Rotary Arm Displacement ; Pendulum Displacement ; Rotary Arm Velocity ; Pendulum Velocity ]
 %% Initial State Vector
-w_0 = [0;1;0;0];
+w_0 = [0;-0.05;0;0];
 
 %% SWITCHING PARAMETER OF BALANCE CONTROL
 % If the initial pendulum angle < +-10 degs, then the balance control is
@@ -73,7 +74,7 @@ switch sys
         %% Linearlized system dyanamics
         % (System linearlized about the unstable point of inverted pendulum)
         % For regulator design
-        [t,w] = ode45(@(t,w)ClosedLoopDyn1(t,w,m,M,L,l,g,dof,Kp,Kd),t_span,w_0);
+        [t,w] = ode45(@(t,w)ClosedLoopDyn1(t,w,m,M,L,l,g,dof,Kp,Kd,wd),t_span,w_0);
         
         % Mass Matrix
         M_mat = [((M/3) + m)*(L^2) ,-(m*L*l)/(2);

@@ -1,4 +1,4 @@
-function dwdt = ClosedLoopDyn1(t,w,m,M,L,l,g,n,Kp,Kd)
+function dwdt = ClosedLoopDyn1(t,w,m,M,L,l,g,n,Kp,Kd,wd)
 
 % State Space Model of the Regulator problem of the linearlized system of
 % inverted rotary pemdulum
@@ -26,6 +26,8 @@ B = [zeros(n,n);M_mat\eye(size(M_mat))];
 % Desired Positions
 qd = [0;0];
 qd_dot = [0;0];
+% qd = [0.01*sin(t);0.01*cos(t)];
+% qd_dot = [0.01*cos(t);-0.01*sin(t)];
 
 % Generalized Coordinates
 q = [w(1);w(2)];
@@ -36,7 +38,6 @@ q_dot = [w(3);w(4)];
 % Closed Loop System Input
 % Only the Rotary Arm is actuated
 u = [Kp*(qd - q) + Kd*(qd_dot - q_dot);0];
-% u = [0;Kp*(qd - q) + Kd*(qd_dot - q_dot)];
 
 % State Space Model
 dwdt = A*w + B*u;

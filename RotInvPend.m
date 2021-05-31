@@ -44,7 +44,13 @@ end
 
 %% Desired State Vector
 % [Desired Arm Posn;Desired Pendulum Position;Desired Arm Velocity;Desired Pendulum Velocity]
-wd = [0;0;0;0];
+for ii = 1:length(t_span)
+    wd(:,ii) = zeros(2*dof,1);
+%     wd(1,ii) = 0.01*sin(t_span(ii));
+%     wd(2,ii) = 0.01*cos(t_span(ii));
+%     wd(3,ii) = 0.01*cos(t_span(ii));
+%     wd(4,ii) = -0.01*sin(t_span(ii));
+end
 
 %% PD Controller Parameters
 % Proportional Gain
@@ -107,7 +113,7 @@ switch sys
         %% Actuator Effort
         % There is only one actuator present at the rotary arm end
         for ii = 1:length(t_span)
-            u(ii) = Kp*(wd(1:2) - [w(ii,1);w(ii,2)]) - Kd*(wd(3:4) - [w(ii,3);w(ii,4)]);
+            u(ii) = Kp*(wd(1:2,ii) - [w(ii,1);w(ii,2)]) - Kd*(wd(3:4,ii) - [w(ii,3);w(ii,4)]);
         end
         
         figure
@@ -131,3 +137,21 @@ plot(t_span,w(:,2),'linewidth',2)
 grid on
 xlabel('Time(s)')
 ylabel('Pendullum Angle (rad)')
+
+
+%% Inverse Dynamics Verification
+Q = Inv_Dynamics_LE_RotInvPend(w,dof,[L;l],[M;m],t_span,g);
+
+% Motor Torque
+Qmotor = Q(:,1);
+
+% Comparing the torque with the fwd dynamics motor control torque (control
+% law)
+figure
+hold on
+plot(t_span,u,'linewidth',2)
+plot(t_span,Qmotor,'linewidth',2)
+legend('Control Law','Inv Dynamics Torque')
+grid on
+xlabel('Time(s)')
+ylabel('Motor Torque (Nm)')

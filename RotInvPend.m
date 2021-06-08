@@ -1,7 +1,7 @@
 clearvars
 close all
 clc
-format bank
+format short
 
 %% Rotary Arm
 M = 0.095;

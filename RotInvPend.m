@@ -56,7 +56,7 @@ Kd = [-1.7400,6.5269]; % Fast Response
 % Kd = [-0.1,5]; % Slow Response
 
 %% External Disturbance Force
-dist = 'Impulse'; % Variable for setting the disturbance
+dist = 'None'; % Variable for setting the disturbance
 
 switch dist
     case 'None'

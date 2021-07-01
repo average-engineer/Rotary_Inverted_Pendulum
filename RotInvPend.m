@@ -16,7 +16,7 @@ g = 9.81;
 
 %% Simulation time vector
 dt = 0.01; % Time Step Size
-t_span = [0:dt:5];
+t_span = [0:dt:100];
 
 %% Degrees of Freedom of the System
 dof = 2;
@@ -48,18 +48,30 @@ wd = [0;0;0;0];
 
 %% PD Controller Parameters
 % Proportional Gain
-Kp = [-2.2361,53.8740];
-
+Kp = [-2.2361,53.8740]; % Fast Response
+% Kp = [20,-10];
+% Kp = [-0.5,50]; % Slow Response
 % Derivative Gain
-Kd = [-1.7400,6.5269];
+Kd = [-1.7400,6.5269]; % Fast Response
+% Kd = [-0.1,5]; % Slow Response
 
+%% External Disturbance Force
+dist = 'Impulse'; % Variable for setting the disturbance
 
-% V = [-1 + 1i;-1 - 1i;-100 - 100*1i;-100 + 100*1i];
-% 
-% K = place(A,B*[0;1],V);
-% 
-% Kp = [K(1) K(2)];
-% Kd = [K(3) K(4)];
+switch dist
+    case 'None'
+        fdist = zeros(2,length(t_span));
+    case 'Impulse'
+        fdist = ImpulseForce(t_span,5,2,dt,dof);
+    case 'Harmonic'
+        fdist = zeros(2,length(t_span));
+        fd1 = 2*sin(t_span);
+        fdist(1,:) = fd1;
+    case 'Static'
+        fdist = zeros(2,length(t_span));
+        fdist(1,:) = 2;
+end
+
 
 %% Computing Dynamics
 % variable for deciding actuation :sys
@@ -74,7 +86,7 @@ switch sys
         %% Linearlized system dyanamics
         % (System linearlized about the unstable point of inverted pendulum)
         % For regulator design
-        [t,w] = ode45(@(t,w)ClosedLoopDyn1(t,w,m,M,L,l,g,dof,Kp,Kd,wd),t_span,w_0);
+        [t,w] = ode45(@(t,w)ClosedLoopDyn1(t,w,m,M,L,l,g,dof,Kp,Kd,wd,dist),t_span,w_0);
         
         % Mass Matrix
         M_mat = [((M/3) + m)*(L^2) ,-(m*L*l)/(2);
@@ -102,31 +114,55 @@ switch sys
         
         %% Controllability of the system
         P = ctrb(A,B*[1;0]);
-        CtrbTestMat_rank = rank(P)
+        CtrbTestMat_rank = rank(P);
+        if CtrbTestMat_rank == 2*dof
+            fprintf('The system is controllable');
+        else
+            fprintf('The system is not controllable');
+        end
         
         %% Actuator Effort
         % There is only one actuator present at the rotary arm end
         for ii = 1:length(t_span)
-            u(ii) = Kp*(wd(1:2) - [w(ii,1);w(ii,2)]) - Kd*(wd(3:4) - [w(ii,3);w(ii,4)]);
+            u(:,ii) = [Kp*(wd(1:2) - [w(ii,1);w(ii,2)]) + Kd*(wd(3:4) - [w(ii,3);w(ii,4)]) ; 0] + fdist(:,ii);
+            u1(ii) = u(1,ii);
+            motorTorque(ii) = u1(ii) - fdist(1,ii);
+            u2(ii) = u(2,ii);
         end
         
         figure
-        plot(t_span,u,'linewidth',2)
+        subplot(3,1,1)
+        plot(t_span,u1,'linewidth',2)
         grid on
         xlabel('Time(s)')
-        ylabel('Motor Torque (Nm)')
+        ylabel('Torque (Nm)')
+        title('Rotary Arm - Base Actuator Torque (Nm)')
+        
+        subplot(3,1,2)
+        plot(t_span,u2,'linewidth',2)
+        grid on
+        xlabel('Time(s)')
+        ylabel('Torque (Nm)')
+        title('Rotary Arm - Inverted Pendulum Joint Torque (Nm)')
+        
+        subplot(3,1,3)
+        plot(t_span,motorTorque,'linewidth',2)
+        grid on
+        xlabel('Time(s)')
+        ylabel('Torque (Nm)')
+        title('Motor Torque (Nm)')
 end
 
 
 %% Responses
 figure
-subplot(1,2,1)
+subplot(2,1,1)
 plot(t_span,w(:,1),'linewidth',2)
 grid on
 xlabel('Time(s)')
 ylabel('Rotary Arm Angle (rad)')
 
-subplot(1,2,2)
+subplot(2,1,2)
 plot(t_span,w(:,2),'linewidth',2)
 grid on
 xlabel('Time(s)')

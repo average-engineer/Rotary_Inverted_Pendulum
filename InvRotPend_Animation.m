@@ -77,7 +77,7 @@ for i = 1:max(size(w))
    axis([-0.15,0.15,-0.1,0.1])
      
    
-   pause(0.1)
+   pause(0.001)
    delete(h1)  
    delete(h2)
    delete(h3)

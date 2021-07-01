@@ -1,4 +1,4 @@
-function dwdt = ClosedLoopDyn1(t,w,m,M,L,l,g,n,Kp,Kd)
+function dwdt = ClosedLoopDyn1(t,w,m,M,L,l,g,n,Kp,Kd,wd,disturbance)
 
 % State Space Model of the Regulator problem of the linearlized system of
 % inverted rotary pemdulum
@@ -24,8 +24,8 @@ A = [zeros(n,n),eye(n,n);
 B = [zeros(n,n);M_mat\eye(size(M_mat))];
 
 % Desired Positions
-qd = [0;0];
-qd_dot = [0;0];
+qd = wd(1:2);
+qd_dot = wd(3:4);
 
 % Generalized Coordinates
 q = [w(1);w(2)];
@@ -33,10 +33,29 @@ q = [w(1);w(2)];
 % Generalized Velocities
 q_dot = [w(3);w(4)];
 
+% Disturbance Forces
+switch disturbance
+    case 'None'
+        fdist = [0;0];
+    case 'Impulse'
+        if t >= 5 && t <= 5 + (1/2)
+%             fdist = [0;2];
+            fdist = [2;0];
+        else 
+            fdist = [0;0];
+        end
+    case 'Harmonic'
+%         fdist = [0;2*sin(t)];
+        fdist = [2*sin(t);0];
+    case 'Static'   
+%         fdist = [0;2];
+        fdist = [2;0];
+end
+
 % Closed Loop System Input
 % Only the Rotary Arm is actuated
-u = [Kp*(qd - q) + Kd*(qd_dot - q_dot);0];
-% u = [0;Kp*(qd - q) + Kd*(qd_dot - q_dot)];
+% Disturbance Force is also accounted
+u = [Kp*(qd - q) + Kd*(qd_dot - q_dot);0] + fdist;
 
 % State Space Model
 dwdt = A*w + B*u;

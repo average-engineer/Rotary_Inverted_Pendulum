@@ -19,7 +19,7 @@ K_mat = [0,0;
     
 % State Weighing Matrix
 A = [zeros(n,n),eye(n,n);
-     -M_mat\eye(size(M_mat))*K_mat,-M_mat\eye(size(M_mat))*C_mat];
+     -M_mat\K_mat,-M_mat\C_mat];
  
 B = [zeros(n,n);M_mat\eye(size(M_mat))];
 
@@ -38,9 +38,9 @@ switch disturbance
     case 'None'
         fdist = [0;0];
     case 'Impulse'
-        if t >= 5 && t <= 5 + (1/2)
+        if t >= 5 && t <= 5 + (1/100)
 %             fdist = [0;2];
-            fdist = [2;0];
+            fdist = [100;0];
         else 
             fdist = [0;0];
         end
@@ -50,6 +50,8 @@ switch disturbance
     case 'Static'   
 %         fdist = [0;2];
         fdist = [2;0];
+    case 'Ramp'
+        fdist = [2*t;0];
 end
 
 % Closed Loop System Input

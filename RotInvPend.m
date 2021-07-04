@@ -1,22 +1,26 @@
 clearvars
 close all
 clc
-format bank
+format short
 
 %% Rotary Arm
-M = 0.095;
-L = 0.085;
+% M = 0.095;
+% L = 0.085;
+M = 2;
+L = 1;
 
 %% Inverted Pendulum
-m = 0.024;
-l = 0.129;
+% m = 0.024;
+% l = 0.129;
+m = 1;
+l = 2;
 
 %% Gravity
 g = 9.81;
 
 %% Simulation time vector
 dt = 0.01; % Time Step Size
-t_span = [0:dt:100];
+t_span = [0:dt:1000000];
 
 %% Degrees of Freedom of the System
 dof = 2;
@@ -49,11 +53,12 @@ wd = [0;0;0;0];
 %% PD Controller Parameters
 % Proportional Gain
 Kp = [-2.2361,53.8740]; % Fast Response
-% Kp = [20,-10];
+% Kp = [-2,1];
 % Kp = [-0.5,50]; % Slow Response
 % Derivative Gain
+% Kd = [-20,2.5];
 Kd = [-1.7400,6.5269]; % Fast Response
-% Kd = [-0.1,5]; % Slow Response
+% Kd = [2,-1]; % Slow Response
 
 %% External Disturbance Force
 dist = 'None'; % Variable for setting the disturbance
@@ -62,7 +67,7 @@ switch dist
     case 'None'
         fdist = zeros(2,length(t_span));
     case 'Impulse'
-        fdist = ImpulseForce(t_span,5,2,dt,dof);
+        fdist = ImpulseForce(t_span,5,100,dt,dof);
     case 'Harmonic'
         fdist = zeros(2,length(t_span));
         fd1 = 2*sin(t_span);
@@ -70,6 +75,9 @@ switch dist
     case 'Static'
         fdist = zeros(2,length(t_span));
         fdist(1,:) = 2;
+    case 'Ramp'
+        fdist = zeros(2,length(t_span));
+        fdist(1,:) = 2*t_span;
 end
 
 
@@ -157,12 +165,14 @@ end
 %% Responses
 figure
 subplot(2,1,1)
+% plot(t_span,rad2deg(w(:,1)),'linewidth',2)
 plot(t_span,w(:,1),'linewidth',2)
 grid on
 xlabel('Time(s)')
 ylabel('Rotary Arm Angle (rad)')
 
 subplot(2,1,2)
+% plot(t_span,rad2deg(w(:,2)),'linewidth',2)
 plot(t_span,w(:,2),'linewidth',2)
 grid on
 xlabel('Time(s)')

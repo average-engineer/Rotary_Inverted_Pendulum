@@ -113,7 +113,7 @@ switch sys
         %% Actuator Effort
         % There is only one actuator present at the rotary arm end
         for ii = 1:length(t_span)
-            u(ii) = Kp*(wd(1:2,ii) - [w(ii,1);w(ii,2)]) - Kd*(wd(3:4,ii) - [w(ii,3);w(ii,4)]);
+            u(ii) = Kp*(wd(1:2,ii) - [w(ii,1);w(ii,2)]) + Kd*(wd(3:4,ii) - [w(ii,3);w(ii,4)]);
         end
         
         figure
@@ -149,8 +149,8 @@ Qmotor = Q(:,1);
 % law)
 figure
 hold on
-plot(t_span,u,'linewidth',2)
-plot(t_span,Qmotor,'linewidth',2)
+plot(t_span(3:end),u(3:end),'linewidth',2)
+plot(t_span(3:end),Qmotor(3:end),'linewidth',2)
 legend('Control Law','Inv Dynamics Torque')
 grid on
 xlabel('Time(s)')

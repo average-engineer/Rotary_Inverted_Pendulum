@@ -37,7 +37,7 @@ flag = ones(NJ,1);
 for ii = 1:length(sim_time)
     for i = 1:NJ
         % Joint Variables (Generalized Coordinates)
-        theta{ii}(i) = (90)*(pi/180) + w(ii,i);
+        theta{ii}(i) = (pi/2) + w(ii,i);
         % Joint Velocities
         theta_dot{ii}(i) = w(ii,i + 2);
     end
